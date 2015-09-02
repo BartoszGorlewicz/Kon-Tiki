@@ -1,7 +1,14 @@
 
 /* Assign a unique ID to this sensor at the same time */
 
-
+/*        HOW TO USE   
+ *   Add header to file : 
+ *   
+ *   #include <Adafruit_Sensor.h>
+ *   #include <Adafruit_HMC5883_U.h>
+ *   Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
+ * 
+                                */
 void displaySensorDetails(void)
 {
   sensor_t sensor;
