@@ -21,15 +21,14 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HMC5883_U.h>
-//#include <floatToString.h>
+
+#define MAX_RUDDER_ANGLE 80 // value from 0 to <90. Gives the move of rudder 2*MAX_RUDDER_ANGLE 
+#define MAX_HEADINGERROR_ANGLE 20 // The angle of heading error which results with max rudder andgle
 Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
 
 Servo myservo;  // create servo object to control a servo
-int heading;
-int course = 330;
-int potpin = 0;  // analog pin used to connect the potentiometer
-// variable to read the value from the analog pin
-String va;
+int heading;    // the heading direction at the moment. In degrees.
+int course = 330; // Desired heading. It is going to be passed from outer funtion
 
 void setup()
 {
@@ -53,16 +52,15 @@ void setup()
 
 void loop()
 {
-  heading = getHeading();
-  va = String(heading);// reads the value of the potentiometer (value between 0 and 1023)
-  int diff = getDifference(course, heading);
-  Serial.println( String(heading) + " " + String(diff));
-  diff = map(diff, -20, 20 , 0, 180);    // scale it to use it with the servo (value between 0 and 180)
-  myservo.write(diff);                  // sets the servo position according to the scaled value
+  heading = getHeading(); 
+  int headingError = getHeadingError();
+//  Serial.println( String(heading) + " " + String(diff));
+  headingError = map(headingError, -MAX_HEADINGERROR_ANGLE, MAX_HEADINGERROR_ANGLE , 90-MAX_RUDDER_ANGLE, 90+MAX_RUDDER_ANGLE);    // translates the heading error to the angle of rudder
+  myservo.write(headingError);                  // sets the servo position according to the scaled value
   delay(100);                           // waits for the servo to get there
 }
 
-int getDifference(int course, int heading) {
+int getHeadingError(void) {
   int difference = course - heading;
   if (difference > 180) difference -= 340;
 
