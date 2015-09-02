@@ -29,40 +29,32 @@ Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
 Servo myservo;  // create servo object to control a servo
 int heading;    // the heading direction at the moment. In degrees.
 int course = 330; // Desired heading. It is going to be passed from outer funtion
-
+int headingError; // difference beatween heading and desired heading
 void setup()
 {
 
   // **************************************** MAGNET *****************************
 
   /* Initialise the sensor */
-  if (!mag.begin())
+  if (!mag.begin()) 
   {
     /* There was a problem detecting the HMC5883 ... check your connections */
     Serial.println("Ooops, no HMC5883 detected ... Check your wiring!");
-    while (1);
   }
   displaySensorDetails();
 
   //****************************SERVO************************************
   myservo.attach(9);  // attaches the servo on pin 9 to the servo object
-
   Serial.begin(9600);
 }
 
 void loop()
 {
-  heading = getHeading(); 
-  int headingError = getHeadingError();
-//  Serial.println( String(heading) + " " + String(diff));
+  heading = getHeading();                     // get heading at this time
+  headingError = course - heading;            // get the heading difference
+  if (headingError > 180) headingError -= 360; // if angle is over 180 then get the smaller angle from other side
   headingError = map(headingError, -MAX_HEADINGERROR_ANGLE, MAX_HEADINGERROR_ANGLE , 90-MAX_RUDDER_ANGLE, 90+MAX_RUDDER_ANGLE);    // translates the heading error to the angle of rudder
   myservo.write(headingError);                  // sets the servo position according to the scaled value
-  delay(100);                           // waits for the servo to get there
+ // delay(100);                           // waits for the servo to get there
 }
 
-int getHeadingError(void) {
-  int difference = course - heading;
-  if (difference > 180) difference -= 340;
-
-  return difference;
-}
